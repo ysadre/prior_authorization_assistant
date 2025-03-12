@@ -1,0 +1,117 @@
+/* General Styles */
+body {
+    font-family: "Inter", Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  /* Container */
+  .container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px; /* Wider for better readability */
+    text-align: center;
+  }
+  
+  /* Heading */
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 20px;
+  }
+  
+  /* Form Labels */
+  label {
+    font-weight: 600;
+    display: block;
+    text-align: left;
+    margin: 12px 0 6px;
+    color: #333;
+  }
+  
+  /* Select & Input Fields */
+  select,
+  .text-input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+  }
+  
+  select:focus,
+  .text-input:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  }
+  
+  /* Button */
+  button {
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    transition: 0.3s ease;
+    width: 100%;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+    
+  /* Error Message */
+  .error {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+ /* Response Box */
+
+  .response-box {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+  }
+  
+  .response-box h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 10px;
+  }
+  
+  .response-box ul {
+    padding-left: 20px;
+  }
+  
+  .response-box li {
+    margin-bottom: 8px;
+  }
+  

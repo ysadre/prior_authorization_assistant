@@ -31,21 +31,28 @@ def clean_markdown(text):
     return text
     
 @app.post("/api/query")
-async def query_guidelines(req: QueryRequest):
-    # Extract input values
-    health_plan = req.health_plan
-    diagnosis = req.diagnosis
-    procedure = req.procedure
+async def query_guidelines(request: QueryRequest):
+    """Process the PA request and fetch relevant guidelines"""
 
-    # Search the guidelines for relevant info
-    guidelines = "\n".join(search_guideline(f"{diagnosis} {procedure}"))
+    # Get relevant text and page numbers from the PDF
+    guidelines, source_pages = search_guideline(request.diagnosis, request.procedure)
 
-    # Get the AI-generated response
-    answer = ask_chatgpt(health_plan, diagnosis, procedure, guidelines)
+    # If no relevant guidelines are found, return a default response
+    if not guidelines:
+        return {
+            "response": f"No specific guidelines found for {request.procedure} related to {request.diagnosis}. Please check payer policies.",
+            "pages": []
+        }
+
+    # Extract the most relevant section for display
+    source_text = "\n".join(guidelines[:2])  # Take only the most relevant 2 sections
+
+    # Generate AI response using extracted guidelines
+    answer = ask_chatgpt(
+        request.health_plan, request.diagnosis, request.procedure, guidelines, source_text, source_pages
+    )
 
     return {
-        "health_plan": health_plan,
-        "diagnosis": diagnosis,
-        "procedure": procedure,
-        "response": answer
+        "response": answer,
+        "pages": source_pages  # Return relevant PDF pages
     }

@@ -217,7 +217,7 @@ function App() {
 
   {response && (
     <div className="response-box">
-      <h2>PA Guidelines</h2>
+      <h2>Prior Authorization Guidelines</h2>
       <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
         {response}
       </ReactMarkdown>

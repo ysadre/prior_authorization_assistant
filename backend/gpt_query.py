@@ -10,52 +10,57 @@ DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 DEEPSEEK_API_KEY = 'sk-b828b961ee2d4d6e950a6ebf9f327743' 
 
 def ask_chatgpt(health_plan, diagnosis, procedure, guidelines, source_text, source_pages):
-    """Generates an AI response that helps medical staff efficiently file a PA request."""
+    """Generates an AI response that helps medical staff efficiently file a Prior Authorization request."""
 
     prompt = f"""
-    You are a clinical prior authorization expert, specialized in medical guidelines for healthcare payers. 
-    Your role is to assist medical staff in ensuring that PA requests are submitted correctly and efficiently.
+    You are a clinical prior authorization (PA) expert specializing in payer guidelines. Your role is to assist medical staff in submitting accurate and compliant Prior Authorization requests based on evidence-based medical policies.
 
-    **Medical Necessity Check:**  
-    If the requested procedure does not align with the diagnosis, state:  
-    - "The procedure '{procedure}' is not typically recommended for '{diagnosis}'."  
-    - Suggest a more appropriate test based on clinical best practices.  
-    - Do not provide PA details for invalid requests.
+    ### **1) Medical Necessity & Clinical Validity Check**  
+    - Determine if the requested procedure **medically aligns** with the given diagnosis.  
+    - If **not clinically appropriate**, state:  
+    - "The procedure '{procedure}' is not typically indicated for '{diagnosis}' under standard medical guidelines."  
+    - Suggest a **more appropriate diagnostic test or procedure** based on clinical best practices.  
+    - **Do NOT** provide prior authorization details for invalid requests.
 
-    **Prior Authorization Requirements:**  
-    If the procedure is appropriate for the diagnosis, determine if prior authorization is required under {health_plan}.  
-    If PA is required, provide the necessary documentation including:  
-    - Medical necessity criteria  
-    - Required clinical notes (e.g., failed conservative treatments, physical exam findings)  
-    - Imaging or test reports needed for approval  
-    - Referral requirements  
+    ### **2) Prior Authorization (PA) Requirements for {health_plan}**  
+    - **Is Prior Authorization (PA) required?** (Yes/No)  
+    - If Prior Authorization is required, provide a **detailed list** of approval conditions:  
+    - **Medical necessity criteria:** Required clinical justifications for Prior Authorization approval.  
+    - **Supporting documentation:** List of required clinical notes (e.g., history of conservative treatments, imaging findings, referrals).  
+    - **Imaging/test requirements:** If a prior test (X-ray, CT, etc.) is needed before MRI approval.  
+    - **Referral or specialist requirement:** If approval requires a specialist review or referral.  
 
-    **Submission Guidelines:**  
-    - Clearly explain where and how to submit the PA request.  
-    - Provide payer-specific submission methods (e.g., portal, fax, or email).  
-    - Indicate expected processing times and follow-up actions.  
+    ### **3) Submission Guidelines**  
+    - Where and how to submit the Prior Authorization request for {health_plan}.  
+    - Include payer-specific submission methods (e.g., **electronic portal, fax, or phone**).  
+    - Expected processing times and **any follow-up actions required**.
 
-    **Avoiding PA Denials:**  
-    - List the most common denial reasons for this procedure-diagnosis combination.  
-    - Provide specific ways to avoid these errors when submitting the request.  
+    ### **4) Common Prior Authorization Denial Reasons & How to Avoid Them**  
+    - List the most frequent **denial reasons** for this procedure-diagnosis combination.  
+    - Provide **actionable steps** to prevent these denials.
 
-    **Appeal Process for Denied Requests:**  
-    If PA is denied, outline the next steps:  
-    - How to submit an appeal  
-    - What additional documentation is needed  
-    - Where to send the appeal request  
+    ### **5) Appeal Process for Denied Prior Authorization Requests**  
+    If the Prior Authorization is denied:  
+    - How to submit an **appeal**.  
+    - What **additional documentation** strengthens the appeal.  
+    - Contact methods for **payer reconsideration or peer-to-peer review**.  
 
-    **Relevant Source Information:**  
-    - Extracted from the official payer guidelines:  
-      - **Page(s):** {', '.join(map(str, source_pages))}  
-      - **Text from source document:**  
-        "{source_text}"  
+    ### **6) Relevant Source Information from {health_plan}**  
+    To ensure accuracy, the following information is sourced from the official guidelines:  
+    - **Page(s):** {', '.join(map(str, source_pages))}  
+    # - **Extracted Text from Source Document:**  
+    # "{source_text}"
 
-    **Health Plan:** {health_plan}  
-    **Diagnosis:** {diagnosis}  
-    **Procedure:** {procedure}  
+    ### **Case Details**
+    - **Health Plan:** {health_plan}  
+    - **Diagnosis:** {diagnosis}  
+    - **Procedure:** {procedure}  
 
-    Provide a structured, professional response that is easy for medical staff to follow.
+    ### **Response Guidelines**
+    - Provide a structured, **professional, and easy-to-read** response.  
+    - Ensure the response is **actionable** for medical staff submitting the PA.  
+    - **Do NOT fabricate information**—only use the extracted guideline data.
+
     """
 
     payload = {

@@ -32,7 +32,7 @@ def clean_markdown(text):
     
 @app.post("/api/query")
 async def query_guidelines(request: QueryRequest):
-    """Process the PA request and fetch relevant guidelines"""
+    """Process the Prior Authorization request and fetch relevant guidelines"""
 
     # Get relevant text and page numbers from the PDF
     guidelines, source_pages = search_guideline(request.diagnosis, request.procedure)

@@ -1,19 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css"; // Import CSS
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 
 function App() {
   const [healthPlan, setHealthPlan] = useState("Aetna");
   const [diagnosis, setDiagnosis] = useState("");
-  const [customDiagnosis, setCustomDiagnosis] = useState("");
   const [procedure, setProcedure] = useState("");
-  const [customProcedure, setCustomProcedure] = useState("");
+  const [filteredDiagnoses, setFilteredDiagnoses] = useState([]);
+  const [filteredProcedures, setFilteredProcedures] = useState([]);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [pages, setPages] = useState([]);
+  const [selectedPage, setSelectedPage] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null); // Tracks active dropdown
 
-  // Diagnosis Options (Sorted Alphabetically)
+
+  // Diagnosis Options
   const diagnoses = [
     "Aortic Aneurysm or Dissection",
     "Cancer (Spinal Malignancy, Metastatic Disease)",
@@ -35,9 +41,9 @@ function App() {
     "Spinal Infection",
     "Spinal Pain Related to Cancer",
     "Upper Back (Thoracic Spine) Pain",
-  ].sort(); // Sort alphabetically
+  ].sort();
 
-  // Procedure Options (Sorted Alphabetically)
+  // Procedure Options
   const procedures = [
     "3D Rendering for Spinal Imaging",
     "CT Procedures",
@@ -45,29 +51,75 @@ function App() {
     "Nuclear Medicine",
     "Spinal PET/CT",
     "Ultrasound",
-  ].sort(); // Sort alphabetically
+  ].sort();
 
+  // Format AI Response
   const formatResponse = (text) => {
     if (!text) return "";
   
-    // Remove markdown headers (####, ###, ##, #)
+    // Remove Markdown headers
     text = text.replace(/^#+\s*/gm, "");
-  
+
     // Convert **bold text** to <strong> tags
     text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-  
+
     return text;
   };
+
+  const handleDiagnosisChange = (e) => {
+    const value = e.target.value;
+    setDiagnosis(value);
   
+    // Include the typed value as the first option in dropdown
+    const filtered = diagnoses.filter(d => d.toLowerCase().includes(value.toLowerCase()));
+    setFilteredDiagnoses(value ? [value, ...filtered] : diagnoses);
+  };
+  
+  const handleProcedureChange = (e) => {
+    const value = e.target.value;
+    setProcedure(value);
+  
+    // Include the typed value as the first option in dropdown
+    const filtered = procedures.filter(p => p.toLowerCase().includes(value.toLowerCase()));
+    setFilteredProcedures(value ? [value, ...filtered] : procedures);
+  };
+  
+
+  const handleDiagnosisFocus = () => {
+    setFilteredDiagnoses(diagnoses);
+    setFilteredProcedures([]); // Close procedure dropdown
+    setActiveDropdown("diagnosis"); // Mark diagnosis as active
+  };
+  
+  const handleProcedureFocus = () => {
+    setFilteredProcedures(procedures);
+    setFilteredDiagnoses([]); // Close diagnosis dropdown
+    setActiveDropdown("procedure"); // Mark procedure as active
+  };
+
+  // Hide dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown-container")) {
+        setFilteredDiagnoses([]);
+        setFilteredProcedures([]);
+        setActiveDropdown(null); // Reset active dropdown
+      }
+    };
+  
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+  
+
   const handleSubmit = async () => {
     setError(null);
     setResponse(null);
+    setPages([]);
+    setSelectedPage(null);
     setLoading(true);
 
-    const finalDiagnosis = diagnosis === "Other" ? customDiagnosis : diagnosis;
-    const finalProcedure = procedure === "Other" ? customProcedure : procedure;
-
-    if (!finalDiagnosis || !finalProcedure) {
+    if (!diagnosis || !procedure) {
       setError("Please enter a valid diagnosis and procedure.");
       setLoading(false);
       return;
@@ -75,8 +127,8 @@ function App() {
 
     const requestData = {
       health_plan: healthPlan,
-      diagnosis: finalDiagnosis,
-      procedure: finalProcedure,
+      diagnosis,
+      procedure,
     };
 
     try {
@@ -93,7 +145,8 @@ function App() {
       }
 
       const data = await res.json();
-      setResponse(data.response);
+      setResponse(formatResponse(data.response));
+      setPages(data.pages || []);
     } catch (err) {
       setError(`Failed to fetch data: ${err.message}`);
     } finally {
@@ -110,51 +163,51 @@ function App() {
         <option value="Aetna">Aetna</option>
       </select>
 
-      {/* Diagnosis Dropdown */}
-      <label>Diagnosis:</label>
-      <select value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)}>
-        <option value="">Select Diagnosis</option>
-        {diagnoses.map((diag, index) => (
-          <option key={index} value={diag}>
-            {diag}
-          </option>
-        ))}
-        <option value="Other">Other (Specify Below)</option>
-      </select>
+      {/* Diagnosis Search Input */}
+<label>Diagnosis:</label>
+<div className="dropdown-container">
+  <input
+    type="text"
+    placeholder="Enter a diagnosis"
+    value={diagnosis}
+    onChange={handleDiagnosisChange}
+    onFocus={handleDiagnosisFocus}
+    className="text-input"
+  />
+  {activeDropdown === "diagnosis" && filteredDiagnoses.length > 0 && (
+    <ul className="dropdown">
+      {filteredDiagnoses.map((d, index) => (
+        <li key={index} onClick={() => { setDiagnosis(d); setFilteredDiagnoses([]); setActiveDropdown(null); }}>
+          {d}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
-      {/* Custom Diagnosis Input */}
-      {diagnosis === "Other" && (
-        <input
-          type="text"
-          placeholder="Enter custom diagnosis"
-          value={customDiagnosis}
-          onChange={(e) => setCustomDiagnosis(e.target.value)}
-          className="text-input"
-        />
-      )}
+{/* Procedure Search Input */}
+<label>Procedure:</label>
+<div className="dropdown-container">
+  <input
+    type="text"
+    placeholder="Enter a procedure"
+    value={procedure}
+    onChange={handleProcedureChange}
+    onFocus={handleProcedureFocus}
+    className="text-input"
+  />
+  {activeDropdown === "procedure" && filteredProcedures.length > 0 && (
+    <ul className="dropdown">
+      {filteredProcedures.map((p, index) => (
+        <li key={index} onClick={() => { setProcedure(p); setFilteredProcedures([]); setActiveDropdown(null); }}>
+          {p}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
-      {/* Procedure Dropdown */}
-      <label>Procedure:</label>
-      <select value={procedure} onChange={(e) => setProcedure(e.target.value)}>
-        <option value="">Select Procedure</option>
-        {procedures.map((proc, index) => (
-          <option key={index} value={proc}>
-            {proc}
-          </option>
-        ))}
-        <option value="Other">Other (Specify Below)</option>
-      </select>
 
-      {/* Custom Procedure Input */}
-      {procedure === "Other" && (
-        <input
-          type="text"
-          placeholder="Enter custom procedure"
-          value={customProcedure}
-          onChange={(e) => setCustomProcedure(e.target.value)}
-          className="text-input"
-        />
-      )}
 
       <button onClick={handleSubmit} disabled={loading}>
         {loading ? "Checking..." : "Check Prior Authorization"}
@@ -162,13 +215,30 @@ function App() {
 
       {error && <p className="error">{error}</p>}
 
-      {response && (
-        <div className="response-box">
-          <h2>PA Guidelines</h2>
-          <ReactMarkdown>{response}</ReactMarkdown>
+  {response && (
+    <div className="response-box">
+      <h2>PA Guidelines</h2>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+        {response}
+      </ReactMarkdown>
+    </div>
+  )}
+  
+
+
+      {pages.length > 0 && (
+        <div>
+          <label>Source Page:</label>
+          <select value={selectedPage} onChange={(e) => setSelectedPage(e.target.value)}>
+            <option value="">Select a page</option>
+            {pages.map((page, index) => (
+              <option key={index} value={page}>
+                Page {page}
+              </option>
+            ))}
+          </select>
         </div>
       )}
-
     </div>
   );
 }

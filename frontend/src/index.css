@@ -114,4 +114,59 @@ body {
   .response-box li {
     margin-bottom: 8px;
   }
+  .text-input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  
+  .dropdown {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: white;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  
+  .dropdown li {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .dropdown li:hover {
+    background: #f4f4f4;
+  }
+  .dropdown-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .dropdown {
+    position: absolute;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+  
+  .dropdown li {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .dropdown li:hover {
+    background: #f4f4f4;
+  }
+  
   

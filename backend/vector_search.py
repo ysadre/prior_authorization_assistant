@@ -1,12 +1,21 @@
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
-from pdf_parser import extract_text_from_pdf
+from pdf_parser import extract_text_from_pdfs
 import PyPDF2
+import os
 
+# Load the sentence transformer model
 model = SentenceTransformer("all-MiniLM-L6-v2")
-pdf_text = extract_text_from_pdf("evicore_guidelines.pdf")
-guideline_sentences = pdf_text.split("\n")
+
+# Extract text from all PDFs in the "pdfs/" folder
+pdf_folder = "pdfs/"
+pdf_texts = extract_text_from_pdfs(pdf_folder)
+
+# Combine extracted text from all PDFs
+guideline_sentences = []
+for filename, text in pdf_texts.items():
+    guideline_sentences.extend(text.split("\n"))  # Split text into sentences
 
 embeddings = model.encode(guideline_sentences)
 dimension = embeddings.shape[1]
